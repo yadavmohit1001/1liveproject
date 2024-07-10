@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <style>
+        /* CSS styles here */
+        #form {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:active {
+            background-color: #0056b3;
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 70%;
+            margin-top: 20px;
+            /* Add margin for spacing */
+            margin: auto;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        button.table-button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button.table-button:hover {
+            background-color: #0056b3;
+        }
+
+        h1,
+        h3 {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        tbody {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form">
+        Name: <input type="text"
+            id="name"><br><br>
+        Email: <input type="text"
+            id="email"><br><br>
+        <button id="btn">Submit</button>
+    </form>
+
+    <div id="cont"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <!-- Table rows will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        let form = document.getElementById("form");
+        let nameInput = document.getElementById("name");
+        let emailInput = document.getElementById("email");
+        let state = false;
+        let arr = [];
+        let currentid = null; // Track current edit id
+
+        async function postdata () {
+            let obj = {
+                name: nameInput.value,
+                email: emailInput.value
+            };
+            try {
+                let res = await axios.post("https://bhaikarender.onrender.com/data", obj);
+                console.log(res.data);
+                getdata();
+                form.reset();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        async function getdata () {
+            try {
+                let res = await axios.get("https://bhaikarender.onrender.com/data");
+                arr = res.data;
+                displaydata();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        async function displaydata () {
+            let tbody = document.getElementById("tbody");
+            tbody.innerHTML = ""; // Clear existing rows
+
+            arr.forEach(ele => {
+                let tr = document.createElement("tr");
+
+                let td1 = document.createElement("td");
+                let name = document.createElement("h1");
+                name.innerText = ele.name;
+                td1.appendChild(name);
+
+                let td2 = document.createElement("td");
+                let email = document.createElement("h3");
+                email.innerText = ele.email;
+                td2.appendChild(email);
+
+                let td3 = document.createElement("td");
+                let editBtn = document.createElement("button");
+                editBtn.innerText = "Edit";
+                editBtn.classList.add("table-button");
+                editBtn.addEventListener("click", () => {
+                    getdataforedit(ele);
+                });
+
+                let deleteBtn = document.createElement("button");
+                deleteBtn.innerText = "Delete";
+                deleteBtn.classList.add("table-button");
+                deleteBtn.addEventListener("click", () => {
+                    deletdata(ele.id);
+                });
+
+                td3.appendChild(editBtn);
+                td3.appendChild(deleteBtn);
+
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function deletdata (id) {
+            try {
+                let res = await axios.delete(`https://bhaikarender.onrender.com/data/${id}`);
+                    console.log(res.data);
+                getdata();
+                alert("Deleted successfully.");
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        function getdataforedit (data) {
+            nameInput.value = data.name;
+            emailInput.value = data.email;
+            currentid = data.id;
+            state = true;
+            btn.innerText = "Update";
+        }
+
+        async function updatedata () {
+            let updateobj = {
+                name: nameInput.value,
+                email: emailInput.value
+            };
+            try {
+                let res = await axios.patch(`https://bhaikarender.onrender.com/data/${currentid}`, updateobj);
+                    console.log(res.data);
+                alert("Updated successfully.");
+                getdata();
+                form.reset();
+                btn.innerText = "Submit";
+                state = false;
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        let btn = document.getElementById("btn");
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (state) {
+                updatedata();
+            } else {
+                postdata();
+            }
+        });
+
+        // Initial data fetch
+        getdata();
+    </script>
+</body>
+
+</html>
