@@ -8,14 +8,20 @@
     <title>Document</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
     <style>
-        /* CSS styles here */
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+
         #form {
             max-width: 400px;
-            margin: 20px auto;
+            margin: 40px auto;
             padding: 20px;
             border: 1px solid #ccc;
-            background-color: #f9f9f9;
+            background-color: #fff;
             border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         input[type="text"] {
@@ -29,13 +35,14 @@
         }
 
         button {
-            background-color: #007bff;
+            background-color: #d3c5da;
             color: #fff;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
             border-radius: 4px;
             font-size: 14px;
+            margin-right: 10px;
         }
 
         button:hover {
@@ -54,16 +61,19 @@
             border-collapse: collapse;
             width: 70%;
             margin-top: 20px;
-            /* Add margin for spacing */
             margin: auto;
+            border: 1px solid #ddd;
         }
 
-        table,
-        th,
-        td {
+        table th,
+        table td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
+        }
+
+        table th {
+            background-color: #f0f0f0;
         }
 
         button.table-button {
@@ -91,11 +101,15 @@
             font-family: Arial, sans-serif;
             font-size: 14px;
         }
+
+        #cont {
+            margin-top: 20px;
+        }
     </style>
 </head>
-
 <body>
     <form id="form">
+        <h2>Enter Your Details</h2>
         Name: <input type="text"
             id="name"><br><br>
         Email: <input type="text"
@@ -113,10 +127,12 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="tbody">
-            <!-- Table rows will be dynamically added here -->
-        </tbody>
+        <tbody id="tbody"></tbody>
     </table>
+
+
+</body>
+
 
     <script>
         let form = document.getElementById("form");
@@ -124,7 +140,7 @@
         let emailInput = document.getElementById("email");
         let state = false;
         let arr = [];
-        let currentid = null; // Track current edit id
+        let currentid = null;
 
         async function postdata () {
             let obj = {
@@ -153,8 +169,7 @@
 
         async function displaydata () {
             let tbody = document.getElementById("tbody");
-            tbody.innerHTML = ""; // Clear existing rows
-
+            tbody.innerHTML = "";
             arr.forEach(ele => {
                 let tr = document.createElement("tr");
 
